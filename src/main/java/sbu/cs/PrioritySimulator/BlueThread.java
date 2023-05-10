@@ -15,6 +15,7 @@ public class BlueThread extends ColorThread {
 
     @Override
     public void run() {
-        // TODO call printMessage
+        printMessage();
+        latch.countDown();
     }
 }
