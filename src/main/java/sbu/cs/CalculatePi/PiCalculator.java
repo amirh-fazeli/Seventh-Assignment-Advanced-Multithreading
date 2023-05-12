@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class PiCalculator {
 
@@ -54,13 +55,22 @@ public class PiCalculator {
     public static String calculate(int floatingPoint) {
         ExecutorService threadPool = Executors.newCachedThreadPool();
 
-
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000000; i++) {
             PiSeries task = new PiSeries(i);
             threadPool.execute(task);
         }
 
-        return sum.toString();
+        threadPool.shutdown();
+
+        try {
+            threadPool.awaitTermination(10000, TimeUnit.MILLISECONDS);
+        }
+
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return sum.toString().substring(0,floatingPoint+2);
     }
 
 
