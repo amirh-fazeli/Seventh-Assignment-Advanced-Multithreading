@@ -65,6 +65,6 @@ public class PiCalculator {
 
 
     public static void main(String[] args){
-        System.out.println(calculate(1));
+        System.out.println(calculate(2));
     }
 }
