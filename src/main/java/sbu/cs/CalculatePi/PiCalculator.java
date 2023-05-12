@@ -52,7 +52,7 @@ public class PiCalculator {
 
 
     public static String calculate(int floatingPoint) {
-        ExecutorService threadPool = Executors.newFixedThreadPool(4);
+        ExecutorService threadPool = Executors.newCachedThreadPool();
 
 
         for (int i = 0; i < 100; i++) {
