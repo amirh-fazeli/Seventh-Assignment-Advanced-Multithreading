@@ -1,5 +1,10 @@
 package sbu.cs.CalculatePi;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class PiCalculator {
 
     /**
@@ -15,31 +20,51 @@ public class PiCalculator {
      * @return pi in string format (the string representation of the BigDecimal object)
      */
 
-    public static String calculate(int floatingPoint){
-        int N = 999999999;
-        Pi.PiThread[] threads = new Pi.PiThread[4];
-        for (int i = 0; i < 4; i++) {
-            threads[i] = new Pi.PiThread(i, N);
-            threads[i].start();
-        }
-        for (int i = 0; i < 4; i++) {
-            try {
-                threads[i].join();
-            }
-            catch (InterruptedException e){
-                e.printStackTrace();
-            }
-        }
+    public static BigDecimal sum = new BigDecimal(0);
 
-        double pi = 0;
-        for (int i = 0; i < 4; i++) {
-            pi += threads[i].getSum();
-        }
-        System.out.println(pi);
-        return null;
+    public static synchronized void addToSum(BigDecimal value){
+        MathContext mc = new MathContext(1000);
+        sum = sum.add(value,mc);
     }
 
+    public static class PiSeries implements Runnable{
+        MathContext mc = new MathContext(1000);
+        int n;
+        BigDecimal result = new BigDecimal(0);
+
+        public PiSeries(int n) {
+            this.n = n;
+        }
+
+        @Override
+        public void run() {
+            BigDecimal sign = new BigDecimal(1);
+            if (n % 2 == 1) {
+                sign = new BigDecimal(-1);
+            }
+
+            BigDecimal denominator = new BigDecimal(2 * n + 1);
+            result = sign.divide(denominator, mc);
+            addToSum(result.multiply(new BigDecimal(4),mc));
+        }
+    }
+
+
+
+    public static String calculate(int floatingPoint) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(4);
+
+
+        for (int i = 0; i < 100; i++) {
+            PiSeries task = new PiSeries(i);
+            threadPool.execute(task);
+        }
+
+        return sum.toString();
+    }
+
+
     public static void main(String[] args){
-        calculate(16);
+        System.out.println(calculate(1));
     }
 }
